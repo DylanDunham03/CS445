@@ -29,6 +29,27 @@ const App: React.FC = () => {
     };
   }, []);
 
+  useEffect(() => {
+    // Load example model when component mounts
+    const loadExampleModel = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/get-example-model');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setResult({
+          model: data.model,
+          thumbnailUrl: data.thumbnail
+        });
+      } catch (error) {
+        console.error('Error loading example model:', error);
+      }
+    };
+
+    loadExampleModel();
+  }, []);
+
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTextInput(e.target.value);
     if (e.target.value) {
@@ -180,12 +201,16 @@ const App: React.FC = () => {
             </div>
 
             {/* Result column */}
-            <div className={`transition-opacity duration-300 ${result ? 'opacity-100' : 'opacity-0'}`}>
-              {result && (
+            <div className={`transition-opacity duration-300 ${result ? 'opacity-100' : 'opacity-50'}`}>
+              {result ? (
                 <ModelViewer
                   modelData={result.model}
                   thumbnailUrl={result.thumbnailUrl}
                 />
+              ) : (
+                <div className="w-full h-[400px] rounded-lg bg-gray-100 flex items-center justify-center">
+                  <p className="text-gray-500">Loading example model...</p>
+                </div>
               )}
             </div>
           </div>
