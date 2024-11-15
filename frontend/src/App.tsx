@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import DragDropInput from './components/DragDropInput';
 import ModelViewer from './components/ModelViewer';
+import Notification from './components/Notification';
+import { API_BASE_URL } from './config';
 
 const App: React.FC = () => {
   const [textInput, setTextInput] = useState('');
@@ -10,6 +12,11 @@ const App: React.FC = () => {
     model: string;
     thumbnailUrl: string;
   } | null>(null);
+  const [notification, setNotification] = useState({
+    message: '',
+    isVisible: false
+  });
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
@@ -33,7 +40,7 @@ const App: React.FC = () => {
     // Load example model when component mounts
     const loadExampleModel = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/get-example-model');
+        const response = await fetch(`${API_BASE_URL}/api/get-example-model`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -70,19 +77,23 @@ const App: React.FC = () => {
     e.preventDefault();
 
     if (!textInput && !imageFile) {
-      alert('Please enter text or upload an image.');
+      setNotification({
+        message: 'Please enter text or upload an image.',
+        isVisible: true
+      });
       return;
     }
 
+    setIsLoading(true);
     const formData = new FormData();
     let endpoint = '';
 
     if (textInput) {
       formData.append('text', textInput);
-      endpoint = 'http://localhost:5000/api/generate-from-text';
+      endpoint = `${API_BASE_URL}/api/generate-from-text`;
     } else if (imageFile) {
       formData.append('image', imageFile);
-      endpoint = 'http://localhost:5000/api/generate-from-image';
+      endpoint = `${API_BASE_URL}/api/generate-from-image`;
     }
 
     try {
@@ -103,12 +114,22 @@ const App: React.FC = () => {
       });
     } catch (error) {
       console.error('Error:', error);
-      alert('An error occurred while processing your request.');
+      setNotification({
+        message: 'An error occurred while processing your request.',
+        isVisible: true
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-[#F5F5F4] relative overflow-hidden">
+      <Notification
+        message={notification.message}
+        isVisible={notification.isVisible}
+        onClose={() => setNotification(prev => ({ ...prev, isVisible: false }))}
+      />
       <div className="absolute inset-0 z-0">
         <div className="absolute top-0 -left-4 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
         <div className="absolute top-0 -right-4 w-72 h-72 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
@@ -120,7 +141,12 @@ const App: React.FC = () => {
       <div className="relative z-50 w-full">
         <div className="absolute top-6 w-full flex justify-between items-center px-12">
           <div className="w-40"></div>
-          <h1 className="text-4xl font-bold text-gray-700">3D-GPT</h1>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 bg-white/80 backdrop-blur-sm hover:bg-white text-gray-700 rounded-lg font-medium text-4xl transition-colors duration-300 shadow-sm border border-gray-200"
+          >
+            3DModel-GPT
+          </button>
           <div className="flex gap-4 w-40">
             <button
               onClick={() => console.log('Settings clicked')}
@@ -141,7 +167,7 @@ const App: React.FC = () => {
       <div className="relative z-10 flex items-center justify-center p-4 min-h-screen">
         <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg w-full max-w-4xl border border-gray-100">
           <h1 className="text-4xl text-gray-700 font-extrabold mb-8 text-center">
-            Generate from Text or Image
+            Create your object!
           </h1>
           
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
@@ -192,10 +218,24 @@ const App: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="w-full py-3 mt-8 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors duration-300"
+                  disabled={isLoading}
+                  className="w-full py-3 mt-8 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-400 text-white rounded-lg font-semibold transition-colors duration-300 flex items-center justify-center gap-2"
                 >
-                  Generate
-                  <span className="text-sm ml-2 opacity-75">(Cmd + Enter)</span>
+                  {isLoading ? (
+                    <>
+                      Generating
+                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      
+                    </>
+                  ) : (
+                    <>
+                      Generate
+                      <span className="text-sm ml-2 opacity-75">(Cmd + Enter)</span>
+                    </>
+                  )}
                 </button>
               </form>
             </div>

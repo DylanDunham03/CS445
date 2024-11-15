@@ -1,9 +1,25 @@
 import requests
 import io
 from PIL import Image
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 API_URL = "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-dev"
-headers = {"Authorization": "Bearer REMOVED"}
+headers = {"Authorization": f"Bearer {os.getenv('HUGGING_FACE_ACCESS_TOKEN')}"}
+
+def additional_image_context(prompt: str) -> str:
+    """
+    Add additional context to the image generation prompt to ensure consistent results
+    
+    Args:
+        prompt (str): The original user prompt
+        
+    Returns:
+        str: Enhanced prompt with additional context
+    """
+    return f"{prompt}, with a white background, where you can see the full object/character in the frame, with great quality"
 
 def generate_image_from_text(prompt):
     """
@@ -20,8 +36,9 @@ def generate_image_from_text(prompt):
         return response.content
 
     try:
+        enhanced_prompt = additional_image_context(prompt)
         image_bytes = query({
-            "inputs": prompt,
+            "inputs": enhanced_prompt,
         })
         image = Image.open(io.BytesIO(image_bytes))
         return image

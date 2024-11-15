@@ -2,8 +2,11 @@ import requests
 import tempfile
 from PIL import Image
 import os
+from dotenv import load_dotenv
 
-STABILITY_API_KEY = "REMOVED"
+load_dotenv()
+
+STABILITY_API_KEY = os.getenv('STABILITY_API_KEY')
 API_URL = "https://api.stability.ai/v2beta/3d/stable-fast-3d"
 
 def convert_image_to_3d(pil_image, foreground_ratio=0.85):

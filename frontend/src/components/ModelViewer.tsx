@@ -10,6 +10,9 @@ interface ModelViewerProps {
 
 const ModelViewer: React.FC<ModelViewerProps> = ({ modelData, thumbnailUrl }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const modelRef = useRef<THREE.Group | null>(null);
+  const isUserInteracting = useRef(false);
+  const animationFrameId = useRef<number>();
 
   useEffect(() => {
     if (!containerRef.current || !modelData) return;
@@ -36,12 +39,34 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ modelData, thumbnailUrl }) =>
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
 
+    // Add interaction listeners with timeout
+    controls.addEventListener('start', () => {
+      isUserInteracting.current = true;
+    });
+    
+    controls.addEventListener('end', () => {
+      // Add small delay before allowing rotation to resume
+      setTimeout(() => {
+        isUserInteracting.current = false;
+      }, 150);
+    });
+
     // Add lights
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(1, 1, 1);
-    scene.add(directionalLight);
+
+    // Add multiple directional lights for better coverage
+    const directionalLight1 = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight1.position.set(1, 1, 1);
+    scene.add(directionalLight1);
+
+    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight2.position.set(-1, -1, -1);
+    scene.add(directionalLight2);
+
+    const directionalLight3 = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight3.position.set(0, 1, 0);
+    scene.add(directionalLight3);
 
     // Load model
     const loader = new GLTFLoader();
@@ -57,6 +82,7 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ modelData, thumbnailUrl }) =>
     const modelUrl = URL.createObjectURL(modelBlob);
 
     loader.load(modelUrl, (gltf) => {
+      modelRef.current = gltf.scene;
       scene.add(gltf.scene);
       
       // Center and scale model
@@ -67,15 +93,22 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ modelData, thumbnailUrl }) =>
       const scale = 3 / maxDim;
       gltf.scene.scale.multiplyScalar(scale);
       gltf.scene.position.sub(center.multiplyScalar(scale));
+
+      // Start animation after model is loaded
+      animate();
     });
 
     // Animation loop
     const animate = () => {
-      requestAnimationFrame(animate);
+      animationFrameId.current = requestAnimationFrame(animate);
       controls.update();
+
+      if (modelRef.current && !isUserInteracting.current) {
+        modelRef.current.rotation.y += 0.005; // Increased rotation speed
+      }
+
       renderer.render(scene, camera);
     };
-    animate();
 
     // Handle resize
     const handleResize = () => {
@@ -87,6 +120,9 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ modelData, thumbnailUrl }) =>
     window.addEventListener('resize', handleResize);
 
     return () => {
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
+      }
       window.removeEventListener('resize', handleResize);
       URL.revokeObjectURL(modelUrl);
       if (containerRef.current?.contains(renderer.domElement)) {
