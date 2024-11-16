@@ -201,5 +201,5 @@ def get_example_model():
         print(f"Error loading example model: {str(e)}")
         return jsonify({"error": f"Error loading example model: {str(e)}"}), 500
 
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+# if __name__ == '__main__':
+#     app.run(debug=True, port=5000)
