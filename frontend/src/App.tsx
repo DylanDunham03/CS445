@@ -2,16 +2,21 @@ import React, { useState, useRef, useEffect } from 'react';
 import DragDropInput from './components/DragDropInput';
 import ModelViewer from './components/ModelViewer';
 import Notification from './components/Notification';
+import ModelCatalog from './components/ModelCatalog';
 import { API_BASE_URL } from './config';
+
+interface ModelData {
+  model: string;
+  thumbnailUrl: string;
+  timestamp: number;
+}
 
 const App: React.FC = () => {
   const [textInput, setTextInput] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
-  const [result, setResult] = useState<{
-    model: string;
-    thumbnailUrl: string;
-  } | null>(null);
+  const [result, setResult] = useState<ModelData | null>(null);
+  const [modelHistory, setModelHistory] = useState<ModelData[]>([]);
   const [notification, setNotification] = useState({
     message: '',
     isVisible: false
@@ -37,18 +42,18 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Load example model when component mounts
     const loadExampleModel = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/api/get-example-model`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
-        setResult({
+        const modelData: ModelData = {
           model: data.model,
-          thumbnailUrl: data.thumbnail
-        });
+          thumbnailUrl: data.thumbnail,
+          timestamp: Date.now()
+        };
+        setResult(modelData);
+        setModelHistory([modelData]);
       } catch (error) {
         console.error('Error loading example model:', error);
       }
@@ -107,11 +112,13 @@ const App: React.FC = () => {
       }
 
       const data = await response.json();
-      
-      setResult({
+      const newModel: ModelData = {
         model: data.model,
-        thumbnailUrl: data.thumbnail
-      });
+        thumbnailUrl: data.thumbnail,
+        timestamp: Date.now()
+      };
+      setResult(newModel);
+      setModelHistory(prev => [...prev, newModel]);
     } catch (error) {
       console.error('Error:', error);
       setNotification({
@@ -164,7 +171,7 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      <div className="relative z-10 flex items-center justify-center p-4 min-h-screen">
+      <div className="relative z-10 flex flex-col items-center justify-center p-4 min-h-screen">
         <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg w-full max-w-4xl border border-gray-100">
           <h1 className="text-4xl text-gray-700 font-extrabold mb-8 text-center">
             Create your object!
@@ -254,6 +261,14 @@ const App: React.FC = () => {
               )}
             </div>
           </div>
+        </div>
+        
+        <div className="w-full max-w-4xl">
+          <ModelCatalog
+            models={modelHistory}
+            onSelect={setResult}
+            currentModel={result}
+          />
         </div>
       </div>
     </div>
