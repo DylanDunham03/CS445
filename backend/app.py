@@ -43,8 +43,6 @@ def generate_from_text():
     
     # Update the request timestamp
     recent_requests[text] = current_time
-    
-    # Clean up old entries
     recent_requests.clear()
     recent_requests[text] = current_time
     
@@ -54,7 +52,7 @@ def generate_from_text():
     generated_image = generate_image_from_text(text)
     
     if generated_image is None:
-        return jsonify({"error": "Failed to generate image"}), 500
+        return jsonify({"error": "Failed to generate image. The request may have timed out or the service may be temporarily unavailable."}), 503
     
     # Print image information
     print(f"Generated image size: {generated_image.size}")
@@ -204,6 +202,53 @@ def get_example_model():
     except Exception as e:
         print(f"Error loading example model: {str(e)}")
         return jsonify({"error": f"Error loading example model: {str(e)}"}), 500
+    
+@app.route('/api/get-example-models', methods=['GET'])
+def get_example_models():
+    examples = [
+        {
+            'model_path': './output_models/legomanpng.glb',
+            'image_path': 'lego.png',
+            'name': 'Lego Man'
+        },
+        {
+            'model_path': './output_models/monkey holding a banana.glb',  
+            'image_path': 'monkey holding a banana.png',
+            'name': 'monkey holding a banana'
+        },
+        {
+            'model_path': './output_models/nike shoes.glb',  # Add your model paths
+            'image_path': 'nike shoes.png',
+            'name': 'Nike Shoes'
+        }
+    ]
+    
+    try:
+        models_data = []
+        for example in examples:
+            # Read and convert the image to base64
+            with open(example['image_path'], 'rb') as f:
+                image_data = f.read()
+                image_base64 = base64.b64encode(image_data).decode('utf-8')
+            
+            # Read the 3D model file
+            with open(example['model_path'], 'rb') as f:
+                model_data = f.read()
+                model_base64 = base64.b64encode(model_data).decode('utf-8')
+            
+            models_data.append({
+                "name": example['name'],
+                "model": model_base64,
+                "thumbnail": f"data:image/png;base64,{image_base64}"
+            })
+        
+        return jsonify({
+            "message": "Example models loaded",
+            "models": models_data
+        })
+    except Exception as e:
+        print(f"Error loading example models: {str(e)}")
+        return jsonify({"error": f"Error loading example models: {str(e)}"}), 500
 
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+# if __name__ == '__main__':
+#     app.run(debug=True, port=5000)

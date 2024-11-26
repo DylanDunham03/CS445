@@ -3,6 +3,7 @@ import io
 from PIL import Image
 import os
 from dotenv import load_dotenv
+from requests.exceptions import Timeout, RequestException
 
 load_dotenv()
 
@@ -19,7 +20,7 @@ def additional_image_context(prompt: str) -> str:
     Returns:
         str: Enhanced prompt with additional context
     """
-    return f"{prompt}, with a white background, where you can see the full object/character in the frame, with great quality"
+    return f"{prompt}, with a white background, where you can see the full object/character in the frame, with great quality, the object is show from a slight angle"
 
 def generate_image_from_text(prompt):
     """
@@ -32,14 +33,31 @@ def generate_image_from_text(prompt):
         PIL.Image: The generated image
     """
     def query(payload):
-        response = requests.post(API_URL, headers=headers, json=payload)
-        return response.content
+        try:
+            response = requests.post(
+                API_URL, 
+                headers=headers, 
+                json=payload,
+                timeout=60  # Set a 60-second timeout
+            )
+            response.raise_for_status()  # Raise an exception for bad status codes
+            return response.content
+        except Timeout:
+            print("Request timed out while generating image")
+            return None
+        except RequestException as e:
+            print(f"Error making request to Hugging Face API: {e}")
+            return None
 
     try:
         enhanced_prompt = additional_image_context(prompt)
         image_bytes = query({
             "inputs": enhanced_prompt,
         })
+        
+        if image_bytes is None:
+            return None
+            
         image = Image.open(io.BytesIO(image_bytes))
         return image
     except Exception as e:

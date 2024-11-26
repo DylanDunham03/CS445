@@ -42,24 +42,30 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const loadExampleModel = async () => {
+    const loadExampleModels = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/get-example-model`);
+        const response = await fetch(`${API_BASE_URL}/api/get-example-models`);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
-        const modelData: ModelData = {
-          model: data.model,
-          thumbnailUrl: data.thumbnail,
-          timestamp: Date.now()
-        };
-        setResult(modelData);
-        setModelHistory([modelData]);
+        
+        // Convert the example models to ModelData format
+        const exampleModels: ModelData[] = data.models.map((model: any) => ({
+          model: model.model,
+          thumbnailUrl: model.thumbnail,
+          timestamp: Date.now() - Math.random() * 1000 // Slightly different timestamps
+        }));
+
+        // Set the first model as the current result
+        setResult(exampleModels[0]);
+        
+        // Add all models to the history
+        setModelHistory(exampleModels);
       } catch (error) {
-        console.error('Error loading example model:', error);
+        console.error('Error loading example models:', error);
       }
     };
 
-    loadExampleModel();
+    loadExampleModels();
   }, []);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -120,6 +120,9 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ modelData, thumbnailUrl }) =>
       const scale = 3 / maxDim;
       gltf.scene.scale.multiplyScalar(scale);
       gltf.scene.position.sub(center.multiplyScalar(scale));
+      
+      // Rotate the model 180 degrees to face the front
+      gltf.scene.rotation.y = Math.PI;
 
       // Start animation after model is loaded
       animate();
