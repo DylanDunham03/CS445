@@ -4,15 +4,19 @@ import { useDropzone } from 'react-dropzone';
 interface DragDropInputProps {
   onFileSelect: (file: File) => void;
   onFileRemove: () => void;
-  disabled: boolean;
+  disabled?: boolean;
   selectedFile: File | null;
+  accept?: Record<string, string[]>;
+  small?: boolean;
 }
 
 const DragDropInput: React.FC<DragDropInputProps> = ({ 
   onFileSelect, 
   onFileRemove,
-  disabled,
-  selectedFile 
+  disabled = false,
+  selectedFile,
+  accept = { 'image/*': [] },
+  small = false
 }) => {
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles[0]) {
@@ -22,9 +26,7 @@ const DragDropInput: React.FC<DragDropInputProps> = ({
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: {
-      'image/*': []
-    },
+    accept,
     disabled,
     multiple: false,
     noKeyboard: true
@@ -38,18 +40,18 @@ const DragDropInput: React.FC<DragDropInputProps> = ({
           e.stopPropagation();
         }
       }}
-      className={`relative w-full p-8 border-2 border-dashed rounded-lg transition-colors duration-300 cursor-pointer ${
+      className={`relative w-full ${small ? 'p-2' : 'p-8'} border-2 border-dashed rounded-lg transition-colors duration-300 cursor-pointer ${
         isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
       } ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:border-blue-500'}`}
     >
       <input {...getInputProps()} />
       <div className="flex flex-col items-center gap-3">
-        <p className="text-gray-500 text-center">
+        <p className={`text-gray-500 text-center ${small ? 'text-sm' : ''}`}>
           {isDragActive ? (
-            'Drop image here'
+            'Drop file here'
           ) : (
             <>
-              Click to upload or drag and drop
+              {small ? 'Click to upload' : 'Click to upload or drag and drop'}
               <br />
               <span className="text-sm opacity-75 flex items-center gap-2">
                 {selectedFile ? (
@@ -67,7 +69,7 @@ const DragDropInput: React.FC<DragDropInputProps> = ({
                     </button>
                   </>
                 ) : (
-                  'Supports PNG, JPG, JPEG'
+                  accept['image/*'] ? 'Supports PNG, JPG, JPEG' : 'Supports HDR'
                 )}
               </span>
             </>

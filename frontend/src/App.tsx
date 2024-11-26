@@ -22,6 +22,7 @@ const App: React.FC = () => {
     isVisible: false
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [hdrFile, setHdrFile] = useState<File | null>(null);
 
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
@@ -134,6 +135,17 @@ const App: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleHdrFileChange = (file: File) => {
+    if (!file.name.toLowerCase().endsWith('.hdr')) {
+      setNotification({
+        message: 'Please upload a valid HDR file (.hdr)',
+        isVisible: true
+      });
+      return;
+    }
+    setHdrFile(file);
   };
 
   return (
@@ -256,10 +268,14 @@ const App: React.FC = () => {
             {/* Result column */}
             <div className={`transition-opacity duration-300 ${result ? 'opacity-100' : 'opacity-50'}`}>
               {result ? (
-                <ModelViewer
-                  modelData={result.model}
-                  thumbnailUrl={result.thumbnailUrl}
-                />
+                <div className="space-y-4">
+                  <ModelViewer
+                    modelData={result.model}
+                    thumbnailUrl={result.thumbnailUrl}
+                    hdrFile={hdrFile}
+                    onHdrFileChange={handleHdrFileChange}
+                  />
+                </div>
               ) : (
                 <div className="w-full h-[400px] rounded-lg bg-gray-100 flex items-center justify-center">
                   <p className="text-gray-500">Loading example model...</p>
