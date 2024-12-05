@@ -17,6 +17,7 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ modelData, thumbnailUrl, hdrF
   const isUserInteracting = useRef(false);
   const animationFrameId = useRef<number>();
   const envMapRef = useRef<THREE.Texture | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDownloadModel = () => {
     const binaryString = atob(modelData);
@@ -43,6 +44,10 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ modelData, thumbnailUrl, hdrF
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+  };
+
+  const handleHdrButtonClick = () => {
+    fileInputRef.current?.click();
   };
 
   useEffect(() => {
@@ -269,8 +274,12 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ modelData, thumbnailUrl, hdrF
           </div>
 
           <div className="relative group">
-            <div className="p-2 bg-white/80 backdrop-blur-sm hover:bg-white text-gray-700 rounded-lg transition-colors duration-300 shadow-sm border border-gray-200 cursor-pointer">
+            <button
+              onClick={handleHdrButtonClick}
+              className="p-2 bg-white/80 backdrop-blur-sm hover:bg-white text-gray-700 rounded-lg transition-colors duration-300 shadow-sm border border-gray-200 cursor-pointer"
+            >
               <input
+                ref={fileInputRef}
                 type="file"
                 accept=".hdr"
                 className="hidden"
@@ -295,7 +304,7 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ modelData, thumbnailUrl, hdrF
                 <path d="M12 3v18" />
                 <path d="M3 12h18" />
               </svg>
-            </div>
+            </button>
             <div className="absolute bottom-full mb-2 hidden group-hover:block">
               <div className="bg-gray-800 text-white text-sm rounded-md py-1 px-2 whitespace-nowrap">
                 Upload HDR Environment
