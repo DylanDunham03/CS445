@@ -149,12 +149,14 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F5F4] relative overflow-hidden">
+    <div className="min-h-screen bg-[#F5F5F4] relative overflow-hidden flex flex-col">
       <Notification
         message={notification.message}
         isVisible={notification.isVisible}
         onClose={() => setNotification(prev => ({ ...prev, isVisible: false }))}
       />
+
+      {/* Background blobs */}
       <div className="absolute inset-0 z-0">
         <div className="absolute top-0 -left-4 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
         <div className="absolute top-0 -right-4 w-72 h-72 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
@@ -163,8 +165,9 @@ const App: React.FC = () => {
         <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-yellow-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-5000"></div>
       </div>
 
-      <div className="relative z-50 w-full">
-        <div className="absolute top-6 w-full flex justify-between items-center px-12">
+      {/* Header Section */}
+      <header className="relative z-50 w-full py-6 px-12 flex-shrink-0">
+        <div className="max-w-7xl mx-auto w-full flex justify-between items-center">
           <div className="w-40"></div>
           <button
             onClick={() => window.location.reload()}
@@ -172,7 +175,7 @@ const App: React.FC = () => {
           >
             3DModel-GPT
           </button>
-          <div className="flex gap-4 w-40">
+          <div className="flex gap-4 w-40 justify-end">
             <button
               onClick={() => console.log('Settings clicked')}
               className="px-4 py-2 bg-white/80 backdrop-blur-sm hover:bg-white text-gray-700 rounded-lg font-medium transition-colors duration-300 shadow-sm border border-gray-200"
@@ -187,9 +190,10 @@ const App: React.FC = () => {
             </button>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="relative z-10 flex flex-col items-center justify-center p-4 min-h-screen">
+      {/* Main Content Section */}
+      <main className="flex-grow relative z-10 flex flex-col items-center justify-center p-4">
         <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg w-full max-w-4xl border border-gray-100">
           <h1 className="text-4xl text-gray-700 font-extrabold mb-8 text-center">
             Create your object!
@@ -292,7 +296,7 @@ const App: React.FC = () => {
             currentModel={result}
           />
         </div>
-      </div>
+      </main>
     </div>
   );
 };

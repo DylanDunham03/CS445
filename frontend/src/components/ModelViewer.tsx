@@ -214,76 +214,94 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ modelData, thumbnailUrl, hdrF
       <div ref={containerRef} className="w-full h-[400px] rounded-lg overflow-hidden" />
       <div className="absolute bottom-4 right-4 flex items-end gap-4">
         <div className="flex gap-2">
-          <button
-            onClick={handleDownloadModel}
-            title="Download 3D Model"
-            className="p-2 bg-white/80 backdrop-blur-sm hover:bg-white text-gray-700 rounded-lg transition-colors duration-300 shadow-sm border border-gray-200"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+          <div className="relative group">
+            <button
+              onClick={handleDownloadModel}
+              className="p-2 bg-white/80 backdrop-blur-sm hover:bg-white text-gray-700 rounded-lg transition-colors duration-300 shadow-sm border border-gray-200"
             >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-          </button>
-          <button
-            onClick={handleDownloadImage}
-            title="Download Image"
-            className="p-2 bg-white/80 backdrop-blur-sm hover:bg-white text-gray-700 rounded-lg transition-colors duration-300 shadow-sm border border-gray-200"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+            </button>
+            <div className="absolute bottom-full mb-2 hidden group-hover:block">
+              <div className="bg-gray-800 text-white text-sm rounded-md py-1 px-2 whitespace-nowrap">
+                Download 3D Model
+              </div>
+            </div>
+          </div>
+
+          <div className="relative group">
+            <button
+              onClick={handleDownloadImage}
+              className="p-2 bg-white/80 backdrop-blur-sm hover:bg-white text-gray-700 rounded-lg transition-colors duration-300 shadow-sm border border-gray-200"
             >
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-              <circle cx="8.5" cy="8.5" r="1.5" />
-              <polyline points="21 15 16 10 5 21" />
-            </svg>
-          </button>
-          <label
-            title="Upload HDR Environment"
-            className="p-2 bg-white/80 backdrop-blur-sm hover:bg-white text-gray-700 rounded-lg transition-colors duration-300 shadow-sm border border-gray-200 cursor-pointer"
-          >
-            <input
-              type="file"
-              accept=".hdr"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  onHdrFileChange?.(file);
-                }
-              }}
-            />
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="12" cy="12" r="9" />
-              <path d="M12 3v18" />
-              <path d="M3 12h18" />
-            </svg>
-          </label>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+            </button>
+            <div className="absolute bottom-full mb-2 hidden group-hover:block">
+              <div className="bg-gray-800 text-white text-sm rounded-md py-1 px-2 whitespace-nowrap">
+                Download Image
+              </div>
+            </div>
+          </div>
+
+          <div className="relative group">
+            <div className="p-2 bg-white/80 backdrop-blur-sm hover:bg-white text-gray-700 rounded-lg transition-colors duration-300 shadow-sm border border-gray-200 cursor-pointer">
+              <input
+                type="file"
+                accept=".hdr"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    onHdrFileChange?.(file);
+                  }
+                }}
+              />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 3v18" />
+                <path d="M3 12h18" />
+              </svg>
+            </div>
+            <div className="absolute bottom-full mb-2 hidden group-hover:block">
+              <div className="bg-gray-800 text-white text-sm rounded-md py-1 px-2 whitespace-nowrap">
+                Upload HDR Environment
+              </div>
+            </div>
+          </div>
         </div>
         <img
           src={thumbnailUrl}

@@ -8,21 +8,21 @@ interface ModelCatalogProps {
 
 const ModelCatalog: React.FC<ModelCatalogProps> = ({ models, onSelect, currentModel }) => {
   return (
-    <div className="mt-8 bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-gray-100">
-      <div className="flex gap-4 overflow-x-auto pb-4 px-2 justify-end">
+    <div className="mt-4 bg-white/80 backdrop-blur-sm p-4 rounded-2xl shadow-lg border border-gray-100">
+      <div className="flex gap-4 overflow-x-auto py-1 px-2 justify-end">
         {models.map((model, index) => (
           <button
             key={model.timestamp}
             onClick={() => onSelect(model)}
-            className="flex-shrink-0 transition-all duration-300 p-1 rounded-lg hover:scale-105"
+            className="flex-shrink-0 transition-all duration-300 rounded-lg hover:scale-105"
           >
             <img
               src={model.thumbnailUrl}
               alt={`Generation ${index + 1}`}
-              className={`w-24 h-24 object-cover rounded-lg shadow-lg transition-all duration-300 ${
+              className={`w-20 h-20 object-cover rounded-lg shadow-lg transition-all duration-300 ${
                 currentModel?.timestamp === model.timestamp
-                  ? 'border-4 border-blue-500'
-                  : 'border-2 border-white'
+                  ? 'border-2 border-blue-500'
+                  : 'border border-white'
               }`}
             />
           </button>
