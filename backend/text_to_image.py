@@ -38,7 +38,7 @@ def additional_image_context(prompt: str) -> str:
         "no shadows, "
         "minimalist composition, "
         "isolated object, "
-        "can see the full object from head to toe"
+        "YOU MUST BE ABLE TO SEE the full object from head to toe"
     )
     
     return context
@@ -64,7 +64,7 @@ def generate_image_from_text(prompt):
             files={"none": ""},  # Required empty files parameter
             data={
                 "prompt": additional_image_context(prompt),
-                "model": "sd3-large-turbo",  # Specifically using sd3-large-turbo
+                "model": "sd3-large",  # Specifically using sd3-large
                 "output_format": "png",
                 "aspect_ratio": "1:1"
             }
