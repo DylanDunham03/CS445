@@ -8,7 +8,8 @@ from requests.exceptions import Timeout, RequestException
 load_dotenv()
 
 STABILITY_API_KEY = os.getenv('STABILITY_API_KEY')
-API_URL = "https://api.stability.ai/v2beta/stable-image/generate/sd3"
+# API_URL = "https://api.stability.ai/v2beta/stable-image/generate/sd3"
+API_URL = "https://api.stability.ai/v2beta/stable-image/generate/ultra"
 
 # API_URL = "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-dev"
 # headers = {"Authorization": f"Bearer {os.getenv('HUGGING_FACE_ACCESS_TOKEN')}"}
@@ -26,26 +27,25 @@ def additional_image_context(prompt: str) -> str:
     """
     context = (
         f"{prompt}, "
-        "centered composition, "
-        "pure white background, "
-        "professional studio lighting, "
-        "8k uhd, highly detailed, "
-        "photorealistic, "
-        "front full view, "
-        "full object in frame, "
-        "product photography style, "
-        "crisp focus, "
-        "no shadows, "
-        "minimalist composition, "
-        "isolated object, "
-        "YOU MUST BE ABLE TO SEE the full object from head to toe"
+        "(centered composition:1.3), "
+        "(pure white background:1.4), "
+        "(8k uhd:1.2), "
+        "(highly detailed:1.3), "
+        "(front three-quarter view:1.2), "
+        "(full object in frame:1.3), "
+        "(product photography style:1.2), "
+        "(crisp focus:1.3), "
+        "(no shadows:1.2), "
+        "(minimalist composition:1.2), "
+        "(isolated object:1.4)"
     )
     
+    print(f"Generated prompt: {context}")
     return context
 
 def generate_image_from_text(prompt):
     """
-    Generate an image from text using Stability AI's API
+    Generate an image from text using Stability AI's Ultra API
     
     Args:
         prompt (str): The text prompt to generate an image from
@@ -59,15 +59,17 @@ def generate_image_from_text(prompt):
             API_URL,
             headers={
                 "Authorization": f"Bearer {STABILITY_API_KEY}",
-                "Accept": "image/*"
+                "Accept": "image/*",
+                "stability-client-id": "3DModel-GPT",
             },
             files={"none": ""},  # Required empty files parameter
             data={
                 "prompt": additional_image_context(prompt),
-                "model": "sd3-large",  # Specifically using sd3-large
                 "output_format": "png",
-                "aspect_ratio": "1:1"
-            }
+                "aspect_ratio": "1:1",
+                "negative_prompt": "blurry, low quality, distorted, deformed, disfigured, bad anatomy, extra limbs, watermark, signature, text"
+            },
+            timeout=60
         )
         
         print(f"Stability AI Response Status: {response.status_code}")
@@ -94,45 +96,3 @@ def generate_image_from_text(prompt):
     except Exception as e:
         print(f"Unexpected error generating image: {e}")
         return None
-    
-# def generate_image_from_text(prompt):
-#     """
-#     Generate an image from text using the FLUX.1-dev model
-    
-#     Args:
-#         prompt (str): The text prompt to generate an image from
-        
-#     Returns:
-#         PIL.Image: The generated image
-#     """
-#     def query(payload):
-#         try:
-#             response = requests.post(
-#                 API_URL, 
-#                 headers=headers, 
-#                 json=payload,
-#                 timeout=60  # Set a 60-second timeout
-#             )
-#             response.raise_for_status()  # Raise an exception for bad status codes
-#             return response.content
-#         except Timeout:
-#             print("Request timed out while generating image")
-#             return None
-#         except RequestException as e:
-#             print(f"Error making request to Hugging Face API: {e}")
-#             return None
-
-#     try:
-#         enhanced_prompt = additional_image_context(prompt)
-#         image_bytes = query({
-#             "inputs": enhanced_prompt,
-#         })
-        
-#         if image_bytes is None:
-#             return None
-            
-#         image = Image.open(io.BytesIO(image_bytes))
-#         return image
-#     except Exception as e:
-#         print(f"Error generating image: {e}")
-#         return None
