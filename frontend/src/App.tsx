@@ -96,6 +96,13 @@ const App: React.FC = () => {
       return;
     }
 
+    // Show the "sit tight" notification
+    setNotification({
+      message: 'Sit tight, this might take a minute...',
+      isVisible: true,
+      duration: 10000  // Keep this message visible longer (10 seconds)
+    });
+
     setIsLoading(true);
     const formData = new FormData();
     let endpoint = '';
