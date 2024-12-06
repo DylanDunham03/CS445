@@ -44,7 +44,7 @@ def generate_image_from_text(prompt):
                 "Content-Type": "application/json"
             },
             json={
-                "prompt": prompt,
+                "prompt": additional_image_context(prompt=prompt),
                 "model": "sd3.5-large-turbo",  # Faster model
                 "output_format": "png",
                 "aspect_ratio": "1:1",  # Square image for 3D model generation
