@@ -177,13 +177,24 @@ const App: React.FC = () => {
           </button>
           <div className="flex gap-4 w-40 justify-end">
             <button
-              onClick={() => console.log('Settings clicked')}
+              onClick={() => 
+                setNotification({
+                  message: 'Settings feature not implemented yet',
+                  isVisible: true,
+                  duration: 2000  // Shorter duration for this notification
+                })
+              }
               className="px-4 py-2 bg-white/80 backdrop-blur-sm hover:bg-white text-gray-700 rounded-lg font-medium transition-colors duration-300 shadow-sm border border-gray-200"
             >
               Settings
             </button>
             <button
-              onClick={() => console.log('Login clicked')}
+              onClick={() =>  setNotification({
+                message: 'Login feature not implemented yet',
+                isVisible: true,
+                duration: 2000  // Shorter duration for this notification
+              })
+            }
               className="px-4 py-2 bg-white/80 backdrop-blur-sm hover:bg-white text-gray-700 rounded-lg font-medium transition-colors duration-300 shadow-sm border border-gray-200"
             >
               Login
