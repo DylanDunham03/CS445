@@ -31,13 +31,14 @@ def additional_image_context(prompt: str) -> str:
         "professional studio lighting, "
         "8k uhd, highly detailed, "
         "photorealistic, "
-        "front three-quarter view, "
+        "front full view, "
         "full object in frame, "
         "product photography style, "
         "crisp focus, "
         "no shadows, "
         "minimalist composition, "
-        "isolated object"
+        "isolated object, "
+        "can see the full object from head to toe"
     )
     
     return context
