@@ -16,6 +16,7 @@ API_URL = "https://api.stability.ai/v2beta/stable-image/generate/sd3"
 def additional_image_context(prompt: str) -> str:
     """
     Add additional context to the image generation prompt to ensure consistent results
+    for 3D model generation.
     
     Args:
         prompt (str): The original user prompt
@@ -23,7 +24,23 @@ def additional_image_context(prompt: str) -> str:
     Returns:
         str: Enhanced prompt with additional context
     """
-    return f"{prompt}, with a white background, where you can see the full object/character in the frame, with great quality, the object is show from a slight angle"
+    context = (
+        f"{prompt}, "
+        "centered composition, "
+        "pure white background, "
+        "professional studio lighting, "
+        "8k uhd, highly detailed, "
+        "photorealistic, "
+        "front three-quarter view, "
+        "full object in frame, "
+        "product photography style, "
+        "crisp focus, "
+        "no shadows, "
+        "minimalist composition, "
+        "isolated object"
+    )
+    
+    return context
 
 def generate_image_from_text(prompt):
     """
