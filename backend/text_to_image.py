@@ -36,24 +36,22 @@ def generate_image_from_text(prompt):
         PIL.Image: The generated image
     """
     try:
+        # Following the exact format from Stability AI documentation
         response = requests.post(
             API_URL,
             headers={
                 "Authorization": f"Bearer {STABILITY_API_KEY}",
-                "Accept": "image/*",
-                "Content-Type": "application/json"
+                "Accept": "image/*"
             },
-            json={
-                "prompt": additional_image_context(prompt=prompt),
-                "model": "sd3.5-large-turbo",  # Faster model
+            files={"none": ""},  # Required empty files parameter
+            data={
+                "prompt": additional_image_context(prompt),
+                "model": "sd3-large-turbo",  # Specifically using sd3-large-turbo
                 "output_format": "png",
-                "aspect_ratio": "1:1",  # Square image for 3D model generation
-                "cfg_scale": 7,  # Balance between creativity and prompt adherence
-            },
-            timeout=30  # 30 second timeout
+                "aspect_ratio": "1:1"
+            }
         )
         
-        # Log the response status and headers for debugging
         print(f"Stability AI Response Status: {response.status_code}")
         
         if response.status_code != 200:
@@ -63,8 +61,9 @@ def generate_image_from_text(prompt):
         # Convert response content to PIL Image
         image = Image.open(io.BytesIO(response.content))
         
-        # Save the image locally for debugging (optional)
+        # Save the image locally for debugging
         image.save('debug_generated_image.png')
+        print(f"Debug image saved as 'debug_generated_image.png'")
         
         return image
         
@@ -77,7 +76,7 @@ def generate_image_from_text(prompt):
     except Exception as e:
         print(f"Unexpected error generating image: {e}")
         return None
-
+    
 # def generate_image_from_text(prompt):
 #     """
 #     Generate an image from text using the FLUX.1-dev model
