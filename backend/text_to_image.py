@@ -15,7 +15,7 @@ os.environ["REPLICATE_API_TOKEN"] = REPLICATE_API_TOKEN
 
 def additional_image_context(prompt: str) -> str:
     """Add additional context to the image generation prompt"""
-    return f"{prompt}, centered composition, pure white background, 8k uhd, highly detailed, shown from a front view with a slight angle, full object in frame"
+    return f"{prompt}, centered composition, pure white background, 8k uhd, highly detailed, shown with a slight angle that allows you to see multiple sides of the object, full object in frame"
 
 def generate_image_from_text(prompt):
     """Generate an image using Replicate's FLUX model"""
