@@ -22,7 +22,7 @@ def generate_image_from_text(prompt):
     try:
         # Create the prediction with FLUX model
         output = replicate.run(
-            "black-forest-labs/flux-dev:d0b0a4f9a5c8f5f7a4f7b3f7a4f7b3f7",
+            "black-forest-labs/flux-dev",
             input={
                 "prompt": additional_image_context(prompt)
             }
