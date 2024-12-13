@@ -5,6 +5,9 @@ import os
 from dotenv import load_dotenv
 from requests.exceptions import Timeout, RequestException
 import replicate
+import cv2
+import numpy as np
+from typing import Tuple, Optional
 
 load_dotenv()
 
@@ -12,37 +15,106 @@ load_dotenv()
 REPLICATE_API_TOKEN = os.getenv('REPLICATE_API_KEY')
 os.environ["REPLICATE_API_TOKEN"] = REPLICATE_API_TOKEN
 
+# Constants for background check
+WHITE_THRESHOLD = 240  # How close to white (255) we want the background to be
+BACKGROUND_CHECK_MARGIN = 20  # Pixels to check from the edges
+MAX_ATTEMPTS = 3  # Maximum number of image generation attempts
+
+def is_background_white(image: Image.Image, threshold: int = WHITE_THRESHOLD) -> bool:
+    """
+    Check if the image background is predominantly white by examining the edges
+    
+    Args:
+        image: PIL Image to check
+        threshold: Minimum RGB value to consider as white (0-255)
+    
+    Returns:
+        bool: True if background is sufficiently white
+    """
+    # Convert PIL Image to OpenCV format
+    cv_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+    
+    # Get image dimensions
+    height, width = cv_image.shape[:2]
+    
+    # Create masks for edges
+    edges = [
+        cv_image[:BACKGROUND_CHECK_MARGIN, :],  # Top edge
+        cv_image[-BACKGROUND_CHECK_MARGIN:, :],  # Bottom edge
+        cv_image[:, :BACKGROUND_CHECK_MARGIN],   # Left edge
+        cv_image[:, -BACKGROUND_CHECK_MARGIN:]   # Right edge
+    ]
+    
+    # Check each edge
+    for edge in edges:
+        mean_color = np.mean(edge, axis=(0, 1))
+        if any(channel < threshold for channel in mean_color):
+            print(f"Edge color values: {mean_color}")
+            return False
+    
+    return True
 
 def additional_image_context(prompt: str) -> str:
     """Add additional context to the image generation prompt"""
-    return f"{prompt}, centered composition, pure white background, 8k uhd, highly detailed, shown with a slight angle that allows you to see multiple sides of the object, full object in frame"
+    return (
+        f"{prompt}, centered composition, pure white background, "
+        "8k uhd, highly detailed, shown with a slight angle that allows "
+        "you to see multiple sides of the object, full object in frame, "
+        "studio lighting, solid white backdrop, product photography"
+    )
 
-def generate_image_from_text(prompt):
-    """Generate an image using Replicate's FLUX model"""
-    try:
-        # Create the prediction with FLUX model
-        output = replicate.run(
-            "black-forest-labs/flux-dev",
-            input={
-                "prompt": additional_image_context(prompt)
-            }
-        )
-        
-        print(f"Generated image URL: {output}")
-        
-        # Download the generated image
-        response = requests.get(output[0])
-        if response.status_code == 200:
-            image = Image.open(io.BytesIO(response.content))
-            image.save('debug_generated_image.png')
-            return image
+def generate_image_from_text(prompt: str) -> Optional[Image.Image]:
+    """
+    Generate an image using Replicate's FLUX model with background validation
+    
+    Args:
+        prompt: Text prompt to generate image from
+    
+    Returns:
+        Optional[Image.Image]: Generated image if successful, None otherwise
+    """
+    attempts = 0
+    while attempts < MAX_ATTEMPTS:
+        attempts += 1
+        try:
+            print(f"Attempt {attempts} of {MAX_ATTEMPTS} to generate image...")
             
-        print(f"Failed to download image: {response.status_code}")
-        return None
-        
-    except Exception as e:
-        print(f"Error generating image: {e}")
-        return None
+            # Create the prediction with FLUX model
+            output = replicate.run(
+                "black-forest-labs/flux-dev",
+                input={
+                    "prompt": additional_image_context(prompt),
+                    "negative_prompt": "dark background, shadows, colored background, textured background, dirty background"
+                }
+            )
+            
+            print(f"Generated image URL: {output}")
+            
+            # Download the generated image
+            response = requests.get(output[0])
+            if response.status_code == 200:
+                image = Image.open(io.BytesIO(response.content))
+                
+                # Save debug image
+                debug_filename = f'debug_generated_image_{attempts}.png'
+                image.save(debug_filename)
+                print(f"Debug image saved as '{debug_filename}'")
+                
+                # Check if background is white
+                if is_background_white(image):
+                    print("Image background check passed")
+                    return image
+                else:
+                    print("Image background check failed, retrying...")
+                    continue
+            
+            print(f"Failed to download image: {response.status_code}")
+            
+        except Exception as e:
+            print(f"Error generating image on attempt {attempts}: {e}")
+    
+    print(f"Failed to generate image with white background after {MAX_ATTEMPTS} attempts")
+    return None
 
 
 
