@@ -1,45 +1,20 @@
-# main-project-team61
-# Tradient -- About Us
+# CS445
+CS445 Final Project
 
 
-
-# Change directory 
-git clone https://github.com/CS222-UIUC/main-project-team61.git
-cd main-project-team61
-
-# Create a virtual environment
+To get started run:
 ```
-python3.11 -m venv .venv
-```
-### You may need to install that version of python
-```
-brew install python@3.11
-```
-### Activate on macOS and Linux:
-```
-source .venv/bin/activate
-```
-# Install dependencies, this will take a minute
-```
-pip install -r requirements.txt
+bash setup.sh
 ```
 
-# Create a .env file in frontend folder .env (copy api keys from google slides)
-
-# Create another .env file in the main project folder (same copy and paste from google slides)
-
-
-### Start the Django server 
+To run the frontend, in a new terminal run:
 ```
-# start another terminal and run, and make sure .venv is activated
-cd system
-python manage.py runserver 8001
-```
-
-### Start the frontend
-```
-# have a seperate terminal for the frontend
 cd frontend
-npm install
-npm run start
+npm run dev
+```
+
+To run the backend, in a new terminal run:
+```
+cd backend
+flask run
 ```
